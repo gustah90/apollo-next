@@ -45,6 +45,14 @@ jobs:
       - name: Format check
         run: npx prettier --check .
 
+      - name: Install SWC binaries explicitly
+        run: |
+          npm install @next/swc-linux-x64-gnu --no-save
+          npm install @next/swc-linux-x64-musl --no-save
+          mkdir -p /home/runner/.cache/next-swc
+          cp -r node_modules/@next/swc-linux-x64-gnu/* /home/runner/.cache/next-swc/
+          cp -r node_modules/@next/swc-linux-x64-musl/* /home/runner/.cache/next-swc/
+
       - name: Unit tests with coverage
         run: npm test -- --coverage --watchAll=false --maxWorkers=2
         env:
