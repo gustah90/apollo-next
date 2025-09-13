@@ -56,5 +56,6 @@ jobs:
       - name: Build application
         run: npm run build
         env:
+          NEXT_DISABLE_SWC: 'true'
           NODE_OPTIONS: '--no-experimental-fetch'
           NEXT_TELEMETRY_DISABLED: '1'
