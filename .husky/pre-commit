@@ -1,0 +1,16 @@
+echo "Running pre-commit..."
+
+# Bloquear commit sem arquivos staged
+if git diff --cached --quiet; then
+  echo "No staged files. Aborting commit."
+  exit 1
+fi
+
+echo "Linting & formatting staged files (lint-staged)…"
+npx lint-staged || {
+  echo "lint-staged failed."
+  exit 1
+}
+
+echo "Pre-commit passed!"
+exit 0
