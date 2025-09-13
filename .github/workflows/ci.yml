@@ -35,7 +35,6 @@ jobs:
           echo "Node.js version: $(node --version)"
           echo "Platform: $(node -p process.platform)"
           echo "Arch: $(node -p process.arch)"
-          npx lightningcss --version
 
       - name: Type checking
         run: npm run type-check
