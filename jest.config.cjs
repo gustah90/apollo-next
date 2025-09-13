@@ -25,6 +25,7 @@ const config = {
             decorators: true,
           },
           transform: {
+            '^.+\\.(ts|tsx)$': 'babel-jest',
             react: {
               runtime: 'automatic',
             },

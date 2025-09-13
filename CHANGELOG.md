@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **GitHub Actions CI/CD pipeline** with comprehensive workflow:
+  - Automated testing on all branches and pull requests
+  - Type checking, linting, and formatting validation
+  - Unit test execution with coverage reporting
+  - Build verification for production readiness
+  - Codecov integration for coverage reporting in private repositories
+
+- **Babel configuration** for Jest test environment:
+  - `babel.config.js` with presets for TypeScript and React
+  - Replacement of SWC with Babel to resolve native binding issues in CI environments
+  - Proper transformation configuration for Jest compatibility
+
+- **Codecov integration** with secure token handling:
+  - GitHub Secrets configuration for private repository support
+  - Automated coverage uploads with detailed reporting
+
+### Fixed
+
+- **SWC native binding issue** in GitHub Actions Linux environment by migrating to Babel
+- **Test coverage collection** now works correctly in CI pipeline
+- **Jest configuration** optimized for both local development and CI environments
+
+### Changed
+
+- **Jest transformer** from SWC to Babel for better cross-platform compatibility
+- **CI pipeline optimization** with proper caching and dependency management
+- **Test execution** with improved worker configuration for CI environments
+
+---
+
 ## [0.1.0] - 2025-09-13
 
 ### Added
@@ -34,20 +68,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     "npm": ">=10 <12"
   }
   ```
-
-### Fixed
-
-- Jest typings issue (`toBeInTheDocument`) by adding proper setup and global types
-- TextEncoder/TextDecoder polyfill for test environment
-- Mock for `next/image` to avoid runtime errors during tests
-- Avoided coverage noise by ignoring layout, UI components and utils
-
----
-
-## [Unreleased]
-
-- Implementation of SpaceX launches catalog with infinite scroll (CSR)
-- Launch detail page with mission data, rocket info, images/videos and external links
-- SSR vs CSR demonstration with Apollo Client
-- Enhanced UI using shadcn/ui components
-- Additional unit and E2E tests
