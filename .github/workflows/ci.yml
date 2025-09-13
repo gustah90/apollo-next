@@ -49,6 +49,7 @@ jobs:
         run: npm test -- --coverage --watchAll=false --maxWorkers=2
         env:
           NEXT_DISABLE_SWC: 'true'
+          BABEL_JEST: 'true'
 
       - name: Build application
         run: npm run build

@@ -2,10 +2,24 @@ const isTurbopack = process.env.TURBOPACK === 'true'
 
 module.exports = {
   presets: [
-    '@babel/preset-env',
+    [
+      '@babel/preset-env',
+      {
+        targets: {
+          node: 'current',
+        },
+        modules: 'commonjs',
+      },
+    ],
     '@babel/preset-typescript',
-    ['@babel/preset-react', { runtime: 'automatic' }],
+    [
+      '@babel/preset-react',
+      {
+        runtime: 'automatic',
+      },
+    ],
   ],
+  extensions: ['.js', '.jsx', '.ts', '.tsx'],
 
   ...(isTurbopack ? { babelrc: false } : {}),
 }

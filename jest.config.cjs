@@ -20,7 +20,7 @@ const config = {
   transformIgnorePatterns: ['node_modules/(?!(.*\\.(js|jsx|ts|tsx)$))'],
   globals: {
     'ts-jest': {
-      useESM: true,
+      isolatedModules: true,
     },
   },
   testMatch: [
