@@ -47,6 +47,8 @@ jobs:
 
       - name: Unit tests with coverage
         run: npm test -- --coverage --watchAll=false --maxWorkers=2
+        env:
+          NEXT_DISABLE_SWC: 'true'
 
       - name: Build application
         run: npm run build
