@@ -15,24 +15,7 @@ const config = {
     '\\.(jpg|jpeg|png|gif|webp|avif|svg)$': '<rootDir>/tests/__mocks__/fileMock.js',
   },
   transform: {
-    '^.+\\.(t|j)sx?$': [
-      '@swc/jest',
-      {
-        jsc: {
-          parser: {
-            syntax: 'typescript',
-            tsx: true,
-            decorators: true,
-          },
-          transform: {
-            '^.+\\.(ts|tsx)$': 'babel-jest',
-            react: {
-              runtime: 'automatic',
-            },
-          },
-        },
-      },
-    ],
+    '^.+\\.(ts|tsx)$': 'babel-jest',
   },
   testMatch: [
     '<rootDir>/tests/**/*.test.{js,jsx,ts,tsx}',
