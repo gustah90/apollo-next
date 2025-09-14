@@ -161,6 +161,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git tag -a "v$VERSION" -m "Release version $VERSION"
           git push origin "v$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Deploy to Vercel
         run: |
@@ -192,13 +193,6 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
-
-      - name: Create version tag
-        run: |
-          git config --local user.email "github-actions@github.com"
-          git config --local user.name "github-actions[bot]"
-          git tag -a "v${{ steps.get-version.outputs.version }}" -m "Release version ${{ steps.get-version.outputs.version }}"
-          git push origin "v${{ steps.get-version.outputs.version }}"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
