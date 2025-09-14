@@ -24,6 +24,6 @@
     "types": ["jest", "node"],
     "typeRoots": ["./node_modules/@types", "./types"]
   },
-  "include": ["next-env.d.ts", "src/**/*", "tests/**/*", "jest.setup.ts", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "src/**/*", "tests/**/*", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "cypress", ".next", "out", "build", "coverage"]
 }
