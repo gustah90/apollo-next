@@ -5,7 +5,9 @@ const nextConfig: NextConfig = {
   compiler: {
     reactRemoveProperties: true,
   },
-  experimental: {},
+  experimental: {
+    optimizeCss: false,
+  },
   transpilePackages: ['@apollo/client', '@apollo/experimental-nextjs-app-support'],
   images: {
     domains: ['images2.imgbox.com', 'live.staticflickr.com'],
