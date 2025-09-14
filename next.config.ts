@@ -2,6 +2,9 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  compiler: {
+    reactRemoveProperties: true,
+  },
   experimental: {},
   transpilePackages: ['@apollo/client', '@apollo/experimental-nextjs-app-support'],
   images: {

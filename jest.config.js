@@ -1,11 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 /** @type {import('jest').Config} */
-const nextJest = require('next/jest')
-
-const createJestConfig = nextJest({
-  dir: './',
-})
-
 const config = {
   //setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jsdom',
@@ -15,8 +8,9 @@ const config = {
     '\\.(jpg|jpeg|png|gif|webp|avif|svg)$': '<rootDir>/tests/__mocks__/fileMock.js',
   },
   transform: {
-    '^.+\\.(ts|tsx)$': ['babel-jest', { configFile: './babel.jest.config.js' }],
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: './babel.jest.config.js' }],
   },
+  transformIgnorePatterns: ['node_modules/(?!(.*\\.(js|jsx|ts|tsx)$))'],
   testMatch: [
     '<rootDir>/tests/**/*.test.{js,jsx,ts,tsx}',
     '<rootDir>/tests/**/*.spec.{js,jsx,ts,tsx}',
@@ -26,20 +20,15 @@ const config = {
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
     '!src/**/types.ts',
-
     '!src/**/?(*.)+(test|spec).{ts,tsx}',
     '!src/**/__tests__/**',
-
     '!src/components/ui/**',
-
     '!src/app/**/layout.tsx',
     '!src/app/**/loading.tsx',
     '!src/app/**/error.tsx',
     '!src/app/**/not-found.tsx',
-
     '!src/lib/utils.ts',
   ],
-
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '/cypress/',
@@ -59,6 +48,7 @@ const config = {
       lines: 50,
     },
   },
+  maxWorkers: 1,
 }
 
-module.exports = createJestConfig(config)
+module.exports = config
