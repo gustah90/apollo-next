@@ -9,14 +9,9 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
-  preset: 'ts-jest',
   transformIgnorePatterns: ['node_modules/(?!@azure/msal-react)', 'node_modules/(?!(antd)/)'],
   transform: {
     '^.+\\.jsx?$': 'babel-jest',
-    '^.+\\.tsx?$': 'ts-jest',
-  },
-  moduleNameMapper: {
-    '@azure/msal-react': '<rootDir>/mocked/module.js',
   },
 }
 const asyncConfig = createJestConfig(customJestConfig)
