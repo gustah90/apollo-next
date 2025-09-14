@@ -170,6 +170,7 @@ jobs:
           vercel --token ${{ secrets.VERCEL_TOKEN }} deploy --prod \
             --build-env NEXT_PUBLIC_APP_ENV=production \
             --build-env NEXT_PUBLIC_APP_VERSION=$VERSION \
+            --build-env TAILWIND_DISABLE_OXIDE=1 \
             --confirm \
             --yes
         env:
