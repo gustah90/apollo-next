@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop, feature/*]
+    branches: ['**']
   pull_request:
     branches: [main]
 
@@ -15,29 +15,34 @@ jobs:
     name: Continuous Integration
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.event_name != 'push' || github.ref != 'refs/heads/main'
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup Node.js ${{ env.NODE_VERSION }}
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: 20
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --no-audit --prefer-offline --omit=optional
+        run: npm ci --no-audit --prefer-offline
 
       - name: Verify installation
         run: |
           echo "Node.js version: $(node --version)"
-          echo "NPM version: $(npm --version)"
           echo "Platform: $(node -p process.platform)"
           echo "Arch: $(node -p process.arch)"
+          ls -la node_modules/.bin/ | grep -E "(swc|next)" || true
+
+      - name: Debug jest setup file
+        run: |
+          echo "Checking for jest.setup files..."
+          ls -la jest.setup* || echo "No jest.setup files found"
+          pwd
+          echo "Contents of working directory:"
+          ls -la
 
       - name: Type checking
         run: npm run type-check
@@ -53,20 +58,12 @@ jobs:
         env:
           CI: true
           NODE_ENV: test
+          JEST_WORKER_ID: 1
 
       - name: Build application
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: '1'
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: |
-            .next
-            public
-          retention-days: 1
 
   version-check:
     name: Version Validation
@@ -95,7 +92,6 @@ jobs:
       - name: Check if version exists in git tags
         id: version-check
         run: |
-          # Check if version tag already exists
           if git rev-parse "v${{ steps.package-version.outputs.current_version }}" >/dev/null 2>&1; then
             echo "Version ${{ steps.package-version.outputs.current_version }} already exists as tag!"
             echo "version_exists=true" >> $GITHUB_OUTPUT
@@ -128,7 +124,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --no-audit --prefer-offline --omit=optional
+        run: npm ci --no-audit --prefer-offline
 
       - name: Install Vercel CLI
         run: npm install --global vercel@${{ env.VERCEL_CLI_VERSION }}
@@ -146,10 +142,11 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "Deploying version $VERSION to Vercel"
 
-          echo "N" | vercel deploy --prod --token ${{ secrets.VERCEL_TOKEN }} \
+          vercel deploy --prod --token ${{ secrets.VERCEL_TOKEN }} \
             --build-env NEXT_PUBLIC_APP_ENV=production \
             --build-env NEXT_PUBLIC_APP_VERSION=$VERSION \
-            --confirm
+            --confirm \
+            --yes
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
