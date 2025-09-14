@@ -1,5 +1,10 @@
 name: CI/CD Pipeline
 
+permissions:
+  contents: write
+  actions: read
+  checks: read
+
 on:
   push:
     branches: ['**']
@@ -86,7 +91,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -115,6 +122,9 @@ jobs:
   cd:
     name: Continuous Deployment to Vercel
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      deployments: write
     needs: [ci, version-check]
     if: |
       github.event_name == 'push' && 
