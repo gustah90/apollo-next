@@ -8,7 +8,7 @@ const config = {
     '\\.(jpg|jpeg|png|gif|webp|avif|svg)$': '<rootDir>/tests/__mocks__/fileMock.js',
   },
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: './babel.jest.config.js' }],
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest'],
   },
   transformIgnorePatterns: ['node_modules/(?!(.*\\.(js|jsx|ts|tsx)$))'],
   testMatch: [
