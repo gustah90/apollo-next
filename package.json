@@ -1,14 +1,14 @@
 {
   "name": "apollo-next",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "engines": {
     "node": "20.x",
     "npm": ">=10 <12"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "cross-env TAILWIND_DISABLE_OXIDE=1 next dev",
+    "build": "cross-env TAILWIND_DISABLE_OXIDE=1 NEXT_TELEMETRY_DISABLED=1 next build",
     "start": "next start",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
@@ -19,7 +19,7 @@
     "coverage": "jest --coverage",
     "e2e": "cypress open",
     "e2e:headless": "cypress run",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@apollo/client": "^4.0.5",
@@ -55,6 +55,7 @@
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.43.0",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^10.0.0",
     "cypress": "^15.2.0",
     "eslint": "^9.35.0",
     "eslint-config-next": "15.5.3",
