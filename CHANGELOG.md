@@ -18,24 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Build verification for production readiness
   - Codecov integration for coverage reporting in private repositories
 
-- **Babel configuration** for Jest test environment:
-  - `babel.config.js` with presets for TypeScript and React
-  - Replacement of SWC with Babel to resolve native binding issues in CI environments
-  - Proper transformation configuration for Jest compatibility
-
 - **Codecov integration** with secure token handling:
   - GitHub Secrets configuration for private repository support
   - Automated coverage uploads with detailed reporting
 
 ### Fixed
 
-- **SWC native binding issue** in GitHub Actions Linux environment by migrating to Babel
 - **Test coverage collection** now works correctly in CI pipeline
 - **Jest configuration** optimized for both local development and CI environments
 
 ### Changed
 
-- **Jest transformer** from SWC to Babel for better cross-platform compatibility
 - **CI pipeline optimization** with proper caching and dependency management
 - **Test execution** with improved worker configuration for CI environments
 
