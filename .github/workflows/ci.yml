@@ -25,13 +25,6 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --prefer-offline
 
-      - name: Install SWC binaries explicitly
-        run: |
-          npm install @swc/core-linux-x64-gnu@latest --no-save || true
-          npm install @swc/core-linux-x64-musl@latest --no-save || true
-          npm install @next/swc-linux-x64-gnu@latest --no-save || true
-          npm install @next/swc-linux-x64-musl@latest --no-save || true
-
       - name: Verify installation
         run: |
           echo "Node.js version: $(node --version)"
