@@ -167,11 +167,13 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "Deploying version $VERSION to Vercel"
 
-          vercel --token ${{ secrets.VERCEL_TOKEN }} deploy --prod \
+          vercel --token ${{ secrets.VERCEL_TOKEN }} deploy --prod --force \
             --build-env NEXT_PUBLIC_APP_ENV=production \
             --build-env NEXT_PUBLIC_APP_VERSION=$VERSION \
             --build-env VERCEL_CACHE_BUSTER=${{ github.run_id }} \
-            --build-env VERCEL_NO_CACHE=1 \
+            --build-env VERCEL_FORCE_NO_BUILD_CACHE=1 \
+            --build-env TAILWIND_DISABLE_OXIDE=1 \
+            --build-env NEXT_TELEMETRY_DISABLED=1 \
             --confirm \
             --yes
             --no-clipboard
@@ -180,7 +182,10 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_PROJECT_NAME: ${{ secrets.VERCEL_PROJECT_NAME }}
-          VERCEL_NO_CACHE: 1
+          VERCEL_FORCE_NO_BUILD_CACHE: 1
+          TAILWIND_DISABLE_OXIDE: 1
+          NEXT_TELEMETRY_DISABLED: 1
+          TURBO_REMOTE_ONLY: false
 
       - name: Get package version
         id: get-version
