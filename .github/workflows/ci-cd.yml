@@ -65,6 +65,15 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: '1'
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            .next
+            public
+          retention-days: 1
+
   version-check:
     name: Version Validation
     runs-on: ubuntu-latest
