@@ -15,8 +15,8 @@
     "format": "prettier --write .",
     "test": "jest",
     "test:watch": "jest --watch",
-    "coverage": "jest --coverage",
     "type-check": "tsc --noEmit",
+    "coverage": "jest --coverage",
     "e2e": "cypress open",
     "e2e:headless": "cypress run",
     "prepare": "husky"
