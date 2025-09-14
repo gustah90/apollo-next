@@ -14,27 +14,30 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 20
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install lightningcss explicitly
-        run: |
-          npm install lightningcss@1.25.0 --no-save
-          npm install @tailwindcss/cli --no-save
-
       - name: Install dependencies
-        run: npm ci --no-audit --prefer-offline --no-optional
+        run: npm ci --no-audit --prefer-offline
 
-      - name: Verify architecture
+      - name: Install SWC binaries explicitly
+        run: |
+          npm install @swc/core-linux-x64-gnu@latest --no-save || true
+          npm install @swc/core-linux-x64-musl@latest --no-save || true
+          npm install @next/swc-linux-x64-gnu@latest --no-save || true
+          npm install @next/swc-linux-x64-musl@latest --no-save || true
+
+      - name: Verify installation
         run: |
           echo "Node.js version: $(node --version)"
           echo "Platform: $(node -p process.platform)"
           echo "Arch: $(node -p process.arch)"
+          ls -la node_modules/.bin/ | grep -E "(swc|next)" || true
 
       - name: Type checking
         run: npm run type-check
@@ -49,13 +52,10 @@ jobs:
         run: npm test -- --coverage --watchAll=false --maxWorkers=2
         env:
           CI: true
-          SWC_NODEJS_FORCE_WASM: '1'
-          NEXT_DISABLE_SWC: 'true'
-          BABEL_JEST: 'true'
+          NODE_ENV: test
 
       - name: Build application
         run: npm run build
         env:
-          NEXT_DISABLE_SWC: 'true'
           NODE_OPTIONS: '--no-experimental-fetch'
           NEXT_TELEMETRY_DISABLED: '1'
