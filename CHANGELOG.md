@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
@@ -11,26 +11,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **GitHub Actions CI/CD pipeline** with comprehensive workflow:
-  - Automated testing on all branches and pull requests
+- **Complete GitHub Actions CI/CD pipeline** with a comprehensive workflow:
+  - Automated tests on all branches and pull requests
   - Type checking, linting, and formatting validation
-  - Unit test execution with coverage reporting
+  - Execution of unit tests with coverage reporting
   - Build verification for production readiness
-  - Codecov integration for coverage reporting in private repositories
+  - Integration with Codecov for private repository coverage reports
 
-- **Codecov integration** with secure token handling:
-  - GitHub Secrets configuration for private repository support
-  - Automated coverage uploads with detailed reporting
+- **Continuous Deployment (CD) to Vercel**:
+  - Automatic Vercel deployment after successful CI
+  - Automatic semantic versioning with Git tags
+  - Automated GitHub Releases for each deployment
+  - Version validation to prevent duplicate deployments
+
+- **Secrets configuration** for secure integration:
+  - `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
+  - `GITHUB_TOKEN` permissions configured for tag pushing
 
 ### Fixed
 
-- **Test coverage collection** now works correctly in CI pipeline
-- **Jest configuration** optimized for both local development and CI environments
+- **Test coverage collection** now works properly in the CI pipeline
+- **Jest configuration** optimized for both local dev and CI environments
+- **403 permission error** fixed when pushing tags from GitHub Actions
+- **Tag format error** fixed when creating GitHub Releases
 
 ### Changed
 
-- **CI pipeline optimization** with proper caching and dependency management
-- **Test execution** with improved worker configuration for CI environments
+- **Optimized CI pipeline** with proper caching and dependency management
+- **Test execution** improved with worker configuration for CI environments
+- **Automated versioning flow** made consistent and reliable
+
+---
+
+## [0.1.1] - 2025-09-14
+
+### Added
+
+- **Full CD implementation** for automatic deployment to Vercel
+- **Automatic versioning system** with Git tags and GitHub Releases
+- **Version validation** to prevent versioning conflicts
+- **Continuous integration** between CI and CD with proper dependencies
+
+### Fixed
+
+- **Authentication errors resolved** with Vercel and GitHub
+- **Vercel CLI command fixes** in workflow
+- **Permission setup** corrected for pushing tags and releases
 
 ---
 
@@ -41,20 +67,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Next.js setup** with App Router and Turbopack enabled
 - **Apollo Client** for GraphQL integration (SpaceX API)
 - **Tailwind CSS v4** and **shadcn/ui** with Radix primitives
-- **ESLint** configuration with Next.js, TypeScript, Prettier and Stylelint
-- **TypeScript config** with strict mode, path aliases (`@/*`), Jest typings
+- **ESLint setup** with Next.js, TypeScript, Prettier, and Stylelint
+- **TypeScript setup** with strict mode, path aliases (`@/*`), Jest typings
 - **Husky + lint-staged** for pre-commit hooks (linting, formatting, type-check)
-- **Jest setup** with SWC, React Testing Library and jest-dom matchers
-- **Custom mocks** for `next/image`, stylesheets and file assets
-- **Cypress setup** for E2E tests with support and fixtures folders
+- **Jest setup** with SWC, React Testing Library, and jest-dom matchers
+- **Custom mocks** for `next/image`, stylesheets, and file assets
+- **Cypress setup** for E2E testing with support and fixture folders
 - **Coverage collection** with exclusions for non-testable files (layouts, UI atoms, utils)
 - **Basic App Router pages**:
   - `Home` (`/`) with welcome message and link to About
   - `About` (`/about`) with navigation link back to Home
 - **Unit tests** for HomePage and AboutPage (RTL)
 - **E2E navigation test** between `/` and `/about` (Cypress)
-- Added `.nvmrc` file with Node.js version `20.17.0`.
-- Enforced Node.js version via `engines` field in `package.json`:
+- `.nvmrc` file added with Node.js version `20.17.0`
+- Node.js version enforcement via `engines` field in `package.json`:
   ```json
   "engines": {
     "node": "20.x",

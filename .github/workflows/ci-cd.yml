@@ -176,15 +176,30 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_PROJECT_NAME: ${{ secrets.VERCEL_PROJECT_NAME }}
 
+      - name: Get package version
+        id: get-version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Create version tag
+        run: |
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "github-actions[bot]"
+          git tag -a "v${{ steps.get-version.outputs.version }}" -m "Release version ${{ steps.get-version.outputs.version }}"
+          git push origin "v${{ steps.get-version.outputs.version }}"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
-        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v$(node -p "require('./package.json').version")
-          name: Release v$(node -p "require('./package.json').version")
+          tag_name: v${{ steps.get-version.outputs.version }}
+          name: Release v${{ steps.get-version.outputs.version }}
           body: |
             Automated deployment to Vercel
-            - Version: $(node -p "require('./package.json').version")
+            - Version: ${{ steps.get-version.outputs.version }}
             - Commit: ${{ github.sha }}
             - Build: ${{ github.run_id }}
           draft: false
