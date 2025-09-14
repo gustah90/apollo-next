@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['images2.imgbox.com', 'live.staticflickr.com'],
   },
-  swcMinify: false,
 }
 
 export default nextConfig
