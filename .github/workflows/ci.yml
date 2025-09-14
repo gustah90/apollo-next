@@ -39,6 +39,14 @@ jobs:
           echo "Arch: $(node -p process.arch)"
           ls -la node_modules/.bin/ | grep -E "(swc|next)" || true
 
+      - name: Debug jest setup file
+        run: |
+          echo "Checking for jest.setup files..."
+          ls -la jest.setup* || echo "No jest.setup files found"
+          pwd
+          echo "Contents of working directory:"
+          ls -la
+
       - name: Type checking
         run: npm run type-check
 
@@ -49,10 +57,11 @@ jobs:
         run: npx prettier --check .
 
       - name: Unit tests with coverage
-        run: npm test -- --coverage --watchAll=false --maxWorkers=2
+        run: npm test -- --coverage --watchAll=false --maxWorkers=2 --no-cache
         env:
           CI: true
           NODE_ENV: test
+          JEST_WORKER_ID: 1
 
       - name: Build application
         run: npm run build
