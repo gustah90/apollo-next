@@ -16,7 +16,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "type-check": "tsc --noEmit",
-    "coverage": "jest --coverage",
+    "test:coverage": "jest --coverage",
     "e2e": "cypress open",
     "e2e:headless": "cypress run",
     "prepare": "husky"
