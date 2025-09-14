@@ -1,6 +1,10 @@
 echo "Running pre-commit..."
 
-# Bloquear commit sem arquivos staged
+if [ -f ".git/MERGE_HEAD" ] || [ -n "$GIT_PULL" ] || [ -n "$CI" ]; then
+  echo "Skipping pre-commit for merge/pull/CI operation."
+  exit 0
+fi
+
 if git diff --cached --quiet; then
   echo "No staged files. Aborting commit."
   exit 1
