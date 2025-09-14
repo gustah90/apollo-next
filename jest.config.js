@@ -7,22 +7,14 @@ const createJestConfig = nextJest({
 })
 
 const config = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  //setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|sass|scss)$': '<rootDir>/tests/__mocks__/styleMock.js',
     '\\.(jpg|jpeg|png|gif|webp|avif|svg)$': '<rootDir>/tests/__mocks__/fileMock.js',
   },
-  transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: './babel.jest.config.js' }],
-  },
   transformIgnorePatterns: ['node_modules/(?!(.*\\.(js|jsx|ts|tsx)$))'],
-  globals: {
-    'ts-jest': {
-      isolatedModules: true,
-    },
-  },
   testMatch: [
     '<rootDir>/tests/**/*.test.{js,jsx,ts,tsx}',
     '<rootDir>/tests/**/*.spec.{js,jsx,ts,tsx}',
@@ -32,20 +24,15 @@ const config = {
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
     '!src/**/types.ts',
-
     '!src/**/?(*.)+(test|spec).{ts,tsx}',
     '!src/**/__tests__/**',
-
     '!src/components/ui/**',
-
     '!src/app/**/layout.tsx',
     '!src/app/**/loading.tsx',
     '!src/app/**/error.tsx',
     '!src/app/**/not-found.tsx',
-
     '!src/lib/utils.ts',
   ],
-
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '/cypress/',
@@ -65,6 +52,7 @@ const config = {
       lines: 50,
     },
   },
+  maxWorkers: 1,
 }
 
 module.exports = createJestConfig(config)
