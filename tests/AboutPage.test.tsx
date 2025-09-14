@@ -1,6 +1,6 @@
+import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import AboutPage from '@/app/about/page'
-import '@testing-library/jest-dom'
 
 describe('AboutPage', () => {
   it('exibe o título da página', () => {
