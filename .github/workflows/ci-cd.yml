@@ -170,12 +170,17 @@ jobs:
           vercel --token ${{ secrets.VERCEL_TOKEN }} deploy --prod \
             --build-env NEXT_PUBLIC_APP_ENV=production \
             --build-env NEXT_PUBLIC_APP_VERSION=$VERSION \
+            --build-env VERCEL_CACHE_BUSTER=${{ github.run_id }} \
+            --build-env VERCEL_NO_CACHE=1 \
             --confirm \
             --yes
+            --no-clipboard
+            --force
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_PROJECT_NAME: ${{ secrets.VERCEL_PROJECT_NAME }}
+          VERCEL_NO_CACHE: 1
 
       - name: Get package version
         id: get-version
