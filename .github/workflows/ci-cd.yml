@@ -166,7 +166,7 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "Deploying version $VERSION to Vercel"
 
-          vercel deploy --prod --token ${{ secrets.VERCEL_TOKEN }} \
+          vercel --token ${{ secrets.VERCEL_TOKEN }} deploy --prod \
             --build-env NEXT_PUBLIC_APP_ENV=production \
             --build-env NEXT_PUBLIC_APP_VERSION=$VERSION \
             --confirm \
