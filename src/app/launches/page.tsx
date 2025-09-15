@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState, Suspense } from 'react'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import LaunchCard from '@/components/layout/LaunchCard'
@@ -13,7 +13,7 @@ import { Launch } from '../types/launch'
 const PAGE_SIZE = 6
 const PULL_THRESHOLD = 60
 
-export default function LaunchesPage() {
+function LaunchesContent() {
   const [launches, setLaunches] = useState<Launch[]>([])
   const [offset, setOffset] = useState<number>(0)
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -228,5 +228,19 @@ export default function LaunchesPage() {
 
       <Footer />
     </>
+  )
+}
+
+export default function LaunchesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
+          <div className="text-white">Carregando...</div>
+        </div>
+      }
+    >
+      <LaunchesContent />
+    </Suspense>
   )
 }
