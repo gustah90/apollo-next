@@ -52,16 +52,6 @@ jest.mock('lucide-react', () => {
 
   return {
     __esModule: true,
-    Rocket: Icon,
-    Layout: Icon,
-    Search: Icon,
-    Monitor: Icon,
-    Smartphone: Icon,
-    Server: Icon,
-    TestTube: Icon,
-    Code: Icon,
-    GitBranch: Icon,
-    Accessibility: Icon,
     ArrowLeft: Icon,
   }
 })
@@ -79,34 +69,44 @@ jest.mock('next/link', () => {
   return Link
 })
 
-import AboutPage from '@/app/about/page'
+import PrivacyPage from '@/app/privacy/page'
 
-describe('AboutPage', () => {
-  it('renderiza o título e a descrição principal', async () => {
-    const element = await AboutPage()
+describe('PrivacyPage (unit)', () => {
+  it('renderiza o H1 e a data de última atualização', async () => {
+    const element = await PrivacyPage()
     render(element)
 
-    expect(screen.getByText(/sobre o projeto/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /política de privacidade/i, level: 1 }),
+    ).toBeInTheDocument()
 
-    expect(screen.getByText(/Conheça mais sobre o SpaceX Launch Portal/i)).toBeInTheDocument()
+    expect(screen.getByText(/última atualização:/i)).toBeInTheDocument()
   })
 
-  it('exibe as seções principais do conteúdo (h2)', async () => {
-    const element = await AboutPage()
+  it('exibe o bloco de Licença MIT com autor', async () => {
+    const element = await PrivacyPage()
     render(element)
 
-    expect(screen.getByRole('heading', { name: /o projeto/i, level: 2 })).toBeInTheDocument()
-    expect(
-      screen.getByRole('heading', { name: /funcionalidades principais/i, level: 2 }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('heading', { name: /tecnologias utilizadas/i, level: 2 }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('heading', { name: /estratégias de renderização/i, level: 2 }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('heading', { name: /recursos de acessibilidade/i, level: 2 }),
-    ).toBeInTheDocument()
+    // CardTitle mockado é <div>, então verificamos por texto
+    expect(screen.getByText(/licença mit/i)).toBeInTheDocument()
+    expect(screen.getByText(/copyright \(c\) 2025/i)).toBeInTheDocument()
+    expect(screen.getByText(/gustah90/i)).toBeInTheDocument()
+  })
+
+  it('exibe as seções principais (h2): Coleta de Dados e Dados Técnicos', async () => {
+    const element = await PrivacyPage()
+    render(element)
+
+    expect(screen.getByRole('heading', { name: /coleta de dados/i, level: 2 })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /dados técnicos/i, level: 2 })).toBeInTheDocument()
+  })
+
+  it('tem CTA para voltar ao início (aria-label)', async () => {
+    const element = await PrivacyPage()
+    render(element)
+
+    const cta = screen.getByRole('link', { name: /ir à página inicial/i })
+    expect(cta).toBeInTheDocument()
+    expect(cta).toHaveAttribute('href', '/')
   })
 })
