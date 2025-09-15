@@ -27,6 +27,7 @@ const config = {
     '!src/**/?(*.)+(test|spec).{ts,tsx}',
     '!src/**/__tests__/**',
     '!src/components/ui/**',
+    '!src/components/layout/**',
     '!src/app/**/layout.tsx',
     '!src/app/**/loading.tsx',
     '!src/app/**/error.tsx',
