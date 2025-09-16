@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-09-16
+
+### Added
+
+- Complete project documentation with comprehensive README.md covering:
+  - Project overview and features
+  - Technology stack and architecture
+  - Installation and setup instructions
+  - Development guidelines and scripts
+  - Testing strategy and coverage
+  - Deployment process and CI/CD pipeline
+  - Contributing guidelines
+  - License information
+- Enhanced accessibility features:
+  - Improved screen reader support throughout the application
+  - Better keyboard navigation indicators and focus management
+  - ARIA landmarks and roles for better semantic structure
+- Performance optimizations:
+  - Image loading optimizations with proper lazy loading strategies
+  - Reduced CLS (Cumulative Layout Shift) with consistent card sizing
+  - Improved Lighthouse scores across all categories
+
+### Changed
+
+- Card layout consistency:
+  - Fixed uneven card heights across all sections using h-full utility classes
+  - Ensured uniform card behavior and hover effects throughout the application
+  - Improved responsive design for various screen sizes
+- Component structure:
+  - Refactored LaunchCard component for better maintainability
+  - Standardized card wrapping patterns for consistent height management
+  - Enhanced TypeScript definitions for better type safety
+- Testing improvements:
+  - Consolidated test files into organized structure
+  - Added Portuguese language descriptions for all test cases
+  - Enhanced test coverage for media utilities and date formatting
+
+### Fixed
+
+- Layout issues:
+  - Resolved inconsistent card sizing in homepage statistics section
+  - Fixed LaunchCard height variations causing layout shifts
+  - Addressed responsive design breakpoints for mobile devices
+- Accessibility enhancements:
+  - Improved color contrast ratios for better readability
+  - Enhanced screen reader announcements for dynamic content
+  - Fixed focus management in interactive elements
+- Internationalization:
+  - Standardized Portuguese language across all user-facing text
+  - Consistent date formatting for Brazilian Portuguese locale
+  - Proper text direction support for mixed content
+
+### Technical Debt
+
+- Code organization:
+  - Consolidated utility functions into logical groupings
+  - Standardized import patterns across the codebase
+  - Removed redundant code and improved documentation
+
 ---
 
 ## [0.1.7] - 2025-09-16

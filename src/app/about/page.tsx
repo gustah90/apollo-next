@@ -153,7 +153,7 @@ export default function AboutPage() {
                           <strong>Next.js 15</strong> com App Router para roteamento e renderização
                         </li>
                         <li>
-                          <strong>React 18</strong> com hooks e componentes funcionais
+                          <strong>React 19</strong> com hooks e componentes funcionais
                         </li>
                         <li>
                           <strong>TypeScript</strong> para tipagem estática e maior confiabilidade
