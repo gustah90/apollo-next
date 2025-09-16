@@ -13,6 +13,7 @@ import {
   DialogTrigger,
   DialogClose,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -138,6 +139,7 @@ export default async function LaunchDetailsPage({ params }: PageProps) {
                   fill
                   className="object-cover object-center opacity-90"
                   priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center opacity-70">
@@ -294,18 +296,26 @@ export default async function LaunchDetailsPage({ params }: PageProps) {
                             fill
                             className="object-cover transition-transform group-hover:scale-105"
                             loading="lazy"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                         </div>
                       </DialogTrigger>
-                      <DialogContent className="w-full h-full max-w-none max-h-none p-0 bg-black/95 border-none">
+                      <DialogContent
+                        className="w-full h-full max-w-none max-h-none p-0 bg-black/95 border-none"
+                        aria-describedby={undefined}
+                      >
                         <div className="relative w-full h-full flex items-center justify-center">
                           <DialogTitle>{`Imagem ${index + 1} do lançamento ${launch.mission_name}`}</DialogTitle>
+                          <DialogDescription className="sr-only">
+                            Visualização ampliada da imagem do lançamento.
+                          </DialogDescription>
                           <Image
                             src={src}
                             alt={`Imagem ${index + 1} do lançamento ${launch.mission_name} em tamanho ampliado`}
                             fill
                             className="object-contain"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                           <DialogClose className="absolute cursor-pointer top-4 right-4 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors">
                             <X className="h-6 w-6 text-white" />
@@ -321,14 +331,18 @@ export default async function LaunchDetailsPage({ params }: PageProps) {
 
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <Button asChild size="lg" className="px-8 py-4 text-base">
-              <Link href="/" aria-label="Ir à página inicial">
+              <Link href="/" scroll={false} aria-label="Ir à página inicial">
                 <ArrowLeft className="h-4 w-4" />
                 Ir ao Início
               </Link>
             </Button>
 
             <Button asChild size="lg" className="px-8 py-4 text-base">
-              <Link href="/launches" aria-label="Explorar catálogo completo de lançamentos">
+              <Link
+                href="/launches"
+                scroll={false}
+                aria-label="Explorar catálogo completo de lançamentos"
+              >
                 Voltar ao Catálogo
                 <ArrowRight className="h-4 w-4" />
               </Link>

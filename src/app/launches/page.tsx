@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useRef, useState, Suspense } from 'react'
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import LaunchCard from '@/components/layout/LaunchCard'
@@ -8,151 +8,127 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getLaunchesCSR } from '@/lib/api'
 import { useSearchParams } from 'next/navigation'
-import { Launch } from '../types/launch'
+import type { Launch } from '../types/launch'
+import { CustomBreadcrumb } from '@/components/layout/CustomBreadcrumb'
 
-const PAGE_SIZE = 6
-const PULL_THRESHOLD = 60
+function useAdaptiveValues() {
+  const isMobile =
+    typeof window !== 'undefined' && window.matchMedia?.('(max-width: 720px)').matches
+
+  return useMemo(
+    () => ({
+      pageSize: isMobile ? 6 : 12,
+      rootMarginPx: isMobile ? 240 : 400,
+    }),
+    [isMobile],
+  )
+}
 
 function LaunchesContent() {
-  const [launches, setLaunches] = useState<Launch[]>([])
-  const [offset, setOffset] = useState<number>(0)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [reachedEnd, setReachedEnd] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
-
+  const { pageSize, rootMarginPx } = useAdaptiveValues()
   const searchParams = useSearchParams()
   const showVideoOnly = searchParams?.get('video') === '1'
 
-  const didInitRef = useRef(false)
-  const offsetRef = useRef(0)
+  const [launches, setLaunches] = useState<Launch[]>([])
+  const [offset, setOffset] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
+  const [reachedEnd, setReachedEnd] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const isLoadingRef = useRef(false)
+  const reachedEndRef = useRef(false)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
+
   useEffect(() => {
-    offsetRef.current = offset
-  }, [offset])
+    isLoadingRef.current = isLoading
+    reachedEndRef.current = reachedEnd
+  }, [isLoading, reachedEnd])
 
-  const pullingRef = useRef<boolean>(false)
-  const pullStartYRef = useRef<number>(0)
-  const canPullRef = useRef<boolean>(false)
-
-  const loadMore = useCallback(async () => {
-    if (isLoading || reachedEnd) return
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const currentOffset = offsetRef.current
-      const data = await getLaunchesCSR(PAGE_SIZE, currentOffset)
-
-      const filtered = showVideoOnly
-        ? data.filter((l) => l.links?.video_link && l.links.video_link.trim() !== '')
-        : data
-
-      setLaunches((prev) => {
-        const seen = new Set(prev.map((l) => l.id))
-        const toAdd = filtered.filter((l) => !seen.has(l.id))
-        return toAdd.length ? [...prev, ...toAdd] : prev
-      })
-
-      setOffset((prev) => prev + PAGE_SIZE)
-      if (filtered.length < PAGE_SIZE) setReachedEnd(true)
-    } catch {
-      setError('Não foi possível carregar os lançamentos. Tente novamente.')
-    } finally {
-      setIsLoading(false)
+  const abortOngoing = () => {
+    if (abortRef.current) {
+      abortRef.current.abort()
+      abortRef.current = null
     }
-  }, [isLoading, reachedEnd, showVideoOnly])
+  }
 
-  useEffect(() => {
-    if (didInitRef.current) return
-    didInitRef.current = true
+  const fetchPage = useCallback(
+    async (nextOffset: number) => {
+      if (isLoadingRef.current || reachedEndRef.current) return
+      setError(null)
+      setIsLoading(true)
+      isLoadingRef.current = true
 
-    try {
-      if ('scrollRestoration' in window.history) {
-        window.history.scrollRestoration = 'manual'
+      abortOngoing()
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      try {
+        const raw = await getLaunchesCSR(pageSize, nextOffset)
+        const filtered = showVideoOnly
+          ? raw.filter((l) => l.links?.video_link && l.links.video_link.trim() !== '')
+          : raw
+
+        setLaunches((prev) => {
+          const seen = new Set(prev.map((l) => l.id))
+          const unique = filtered.filter((l) => !seen.has(l.id))
+          return unique.length ? [...prev, ...unique] : prev
+        })
+
+        setOffset((prev) => prev + filtered.length)
+        if (filtered.length < pageSize) {
+          reachedEndRef.current = true
+          setReachedEnd(true)
+        }
+      } catch (e) {
+        if ((e as { name?: string })?.name !== 'AbortError') {
+          setError('Não foi possível carregar os lançamentos. Tente novamente.')
+        }
+      } finally {
+        setIsLoading(false)
+        isLoadingRef.current = false
       }
-    } catch {}
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-
-    setLaunches([])
-    setReachedEnd(false)
-    setError(null)
-    setOffset(0)
-    offsetRef.current = 0
-
-    void loadMore()
-  }, [loadMore])
+    },
+    [pageSize, showVideoOnly],
+  )
 
   useEffect(() => {
-    const el = sentinelRef.current
-    if (!el) return
+    abortOngoing()
+    setLaunches([])
+    setOffset(0)
+    setReachedEnd(false)
+    reachedEndRef.current = false
+    setError(null)
+    fetchPage(0)
+    return abortOngoing
+  }, [fetchPage])
 
-    const obs = new IntersectionObserver(
+  useEffect(() => {
+    const target = sentinelRef.current
+    if (!target) return
+
+    let debounce: ReturnType<typeof setTimeout> | null = null
+
+    const io = new IntersectionObserver(
       (entries) => {
         const [entry] = entries
-        if (entry.isIntersecting && !isLoading && !reachedEnd) {
-          void loadMore()
-        }
+        if (!entry.isIntersecting) return
+        if (isLoadingRef.current || reachedEndRef.current) return
+
+        if (debounce) clearTimeout(debounce)
+        debounce = setTimeout(() => {
+          fetchPage(offset)
+        }, 90)
       },
-      { rootMargin: '120px 0px 120px 0px', threshold: 0.1 },
+      { root: null, rootMargin: `${rootMarginPx}px 0px ${rootMarginPx}px 0px`, threshold: 0.01 },
     )
 
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [loadMore, isLoading, reachedEnd])
-
-  useEffect(() => {
-    const onScroll = () => {
-      const nearBottom =
-        Math.ceil(window.innerHeight + window.scrollY) >=
-        document.documentElement.scrollHeight - 100
-      canPullRef.current = nearBottom && reachedEnd && !isLoading
-    }
-
-    const onTouchStart = (e: TouchEvent) => {
-      if (!canPullRef.current) return
-      pullingRef.current = true
-      pullStartYRef.current = e.touches[0]?.clientY ?? 0
-    }
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!pullingRef.current) return
-      const y = e.touches[0]?.clientY ?? 0
-      const delta = y - pullStartYRef.current
-      if (delta > PULL_THRESHOLD) {
-        pullingRef.current = false
-        setReachedEnd(false)
-        void loadMore()
-      }
-    }
-
-    const onTouchEnd = () => {
-      pullingRef.current = false
-    }
-
-    const onWheel = (e: WheelEvent) => {
-      if (!canPullRef.current) return
-      if (e.deltaY > 0) {
-        setReachedEnd(false)
-        void loadMore()
-      }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('touchstart', onTouchStart, { passive: true })
-    window.addEventListener('touchmove', onTouchMove, { passive: true })
-    window.addEventListener('touchend', onTouchEnd, { passive: true })
-    window.addEventListener('wheel', onWheel, { passive: true })
-
-    onScroll()
+    io.observe(target)
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('touchstart', onTouchStart)
-      window.removeEventListener('touchmove', onTouchMove)
-      window.removeEventListener('touchend', onTouchEnd)
-      window.removeEventListener('wheel', onWheel)
+      io.disconnect()
+      if (debounce) clearTimeout(debounce)
     }
-  }, [reachedEnd, isLoading, loadMore])
+  }, [fetchPage, offset, rootMarginPx])
 
   return (
     <>
@@ -164,13 +140,29 @@ function LaunchesContent() {
         tabIndex={-1}
         className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white"
       >
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:py-14 md:py-16 lg:py-20">
+        <CustomBreadcrumb
+          items={[
+            { href: '/', label: 'Início' },
+            { href: '#', label: 'Lançamentos' },
+          ]}
+          className="mx-auto max-w-4xl px-4 pt-12 space-y-8"
+        />
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:py-4">
           <section aria-labelledby="lista-lancamentos" className="relative">
-            <header className="text-center mb-8">
-              <h1 id="lista-lancamentos" className="text-3xl font-bold mb-2">
+            <header className="mb-6 text-center sm:mb-8">
+              <h1 id="lista-lancamentos" className="text-2xl font-bold sm:text-3xl">
                 Catálogo de Lançamentos
               </h1>
-              <p className="text-slate-300">Explore todos os lançamentos da SpaceX</p>
+              <p className="mt-1 text-sm text-slate-300 sm:text-base">
+                Explore todos os lançamentos da SpaceX
+              </p>
+              <p className="sr-only" aria-live="polite" aria-atomic="true">
+                {isLoading
+                  ? 'Carregando mais lançamentos…'
+                  : reachedEnd
+                    ? 'Você chegou ao fim da lista.'
+                    : ''}
+              </p>
             </header>
 
             {error && (
@@ -183,7 +175,7 @@ function LaunchesContent() {
                   variant="outline"
                   size="sm"
                   className="ml-2"
-                  onClick={() => void loadMore()}
+                  onClick={() => fetchPage(offset)}
                 >
                   Tentar novamente
                 </Button>
@@ -191,23 +183,25 @@ function LaunchesContent() {
             )}
 
             <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
               role="list"
               aria-label="Lançamentos"
             >
               {launches.map((launch) => (
-                <LaunchCard key={launch.id} launch={launch} />
+                <div
+                  key={launch.id}
+                  className="[content-visibility:auto] [contain-intrinsic-size:420px]"
+                >
+                  <LaunchCard launch={launch} />
+                </div>
               ))}
             </div>
 
             {isLoading && (
-              <div
-                className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                aria-live="polite"
-              >
-                {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+              <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: Math.min(pageSize, 6) }).map((_, i) => (
                   <div key={i} className="flex flex-col space-y-3">
-                    <Skeleton className="h-48 rounded-xl" />
+                    <Skeleton className="h-44 rounded-xl sm:h-48" />
                     <Skeleton className="h-4 w-3/4" />
                     <Skeleton className="h-4 w-1/2" />
                   </div>
@@ -215,11 +209,24 @@ function LaunchesContent() {
               </div>
             )}
 
-            <div ref={sentinelRef} className="h-12" aria-hidden="true" />
+            <div aria-hidden="true" className="h-16" />
+            <div ref={sentinelRef} className="h-1 opacity-0" aria-hidden="true" />
 
-            {reachedEnd && !isLoading && (
-              <div className="mt-8 text-center text-slate-400">
-                <p>Você chegou ao fim 🎯</p>
+            {reachedEnd && !isLoading && launches.length > 0 && (
+              <div className="mt-10 border-t border-slate-700/50 py-8 text-center text-slate-400">
+                <p className="text-base sm:text-lg">🎯 Você chegou ao fim!</p>
+                <p className="mt-1 text-xs sm:text-sm">
+                  Todos os {launches.length} lançamentos foram carregados.
+                </p>
+              </div>
+            )}
+
+            {!isLoading && launches.length === 0 && !error && (
+              <div className="py-14 text-center text-slate-400">
+                <p>Buscando lançamentos....</p>
+                {showVideoOnly && (
+                  <p className="mt-2 text-sm">Tente desativar o filtro de vídeo.</p>
+                )}
               </div>
             )}
           </section>
@@ -235,8 +242,8 @@ export default function LaunchesPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
-          <div className="text-white">Carregando...</div>
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800">
+          <div className="text-white">Carregando…</div>
         </div>
       }
     >

@@ -2,26 +2,6 @@
  * @jest-environment jsdom
  */
 import '@testing-library/jest-dom'
-// interface Launch {
-//   id: string
-//   mission_name: string
-//   launch_date_utc: string
-//   launch_success: boolean
-//   launch_site: string | { site_name_long?: string }
-//   details: string
-//   links: {
-//     mission_patch: string
-//     mission_patch_small: string
-//     article_link: string
-//     video_link: string
-//     wikipedia: string
-//     flickr_images: string[]
-//   }
-//   rocket: {
-//     rocket_name: string
-//     rocket_type: string
-//   }
-// }
 
 type RequestFn = jest.Mock<Promise<unknown>, [string, Record<string, unknown>?]>
 interface MockClient {

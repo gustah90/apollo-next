@@ -7,6 +7,12 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
   const pathname = usePathname()
   const isPrivacyPage = pathname === '/privacy'
+  const email = 'gustavohsp90@gmail.com'
+
+  const subject = `Contato — SpaceX Launch Portal (${pathname})`
+
+  const body = 'Olá, gostaria de falar sobre...'
+  const mailtoHref = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 
   return (
     <footer className="bg-slate-900 border-t border-slate-700 py-8" role="contentinfo">
@@ -18,13 +24,14 @@ export function Footer() {
           </div>
 
           <nav aria-label="Navegação do rodapé">
-            <ul className="flex flex-col xs:items-center sm:items-center md:items-start gap-4 md:flex-row md:gap-6">
+            <ul className="flex flex-col items-center gap-4 md:flex-row md:gap-6">
               <li>
                 {isPrivacyPage ? (
                   <span className="text-slate-400 text-sm cursor-default">Privacidade</span>
                 ) : (
                   <Link
                     href="/privacy"
+                    scroll={false}
                     className="text-slate-400 hover:text-white text-sm transition-colors"
                   >
                     Privacidade
@@ -32,11 +39,15 @@ export function Footer() {
                 )}
               </li>
               <li className="text-slate-400 text-sm">
-                <div className="text-center md:text-left">
-                  <span className="text-slate-300 text-sm cursor-default pt-2">Contato</span>
-                  <p className="mt-1">gustavohsp90@gmail.com</p>
-                  <p>+351 931 316 162</p>
-                </div>
+                <Link
+                  href={mailtoHref}
+                  className="group block text-center md:text-left text-slate-300 hover:text-white transition-colors"
+                  aria-label={`Enviar e-mail de contato para ${email} com assunto "${subject}"`}
+                >
+                  <span className="underline decoration-slate-600 hover:decoration-slate-300">
+                    Contato
+                  </span>
+                </Link>
               </li>
             </ul>
           </nav>

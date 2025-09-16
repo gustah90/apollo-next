@@ -20,6 +20,21 @@ jest.mock('@/components/ui/button', () => ({
   },
 }))
 
+jest.mock('@/components/layout/CustomBreadcrumb', () => ({
+  __esModule: true,
+  CustomBreadcrumb: ({
+    items,
+  }: {
+    items: Array<{ href: string; label: string; isCurrent?: boolean }>
+  }) => (
+    <nav data-testid="breadcrumb">
+      {items.map((item, i) => (
+        <span key={i}>{item.label}</span>
+      ))}
+    </nav>
+  ),
+}))
+
 type CardShellProps = PropsWithChildren<{ className?: string }>
 jest.mock('@/components/ui/card', () => ({
   Card: ({ className, children, ...rest }: CardShellProps): ReactElement => (
@@ -66,17 +81,23 @@ jest.mock('lucide-react', () => {
   }
 })
 
-interface LinkProps extends PropsWithChildren<React.AnchorHTMLAttributes<HTMLAnchorElement>> {
-  href: string
-}
 jest.mock('next/link', () => {
-  const Link = ({ href, children, ...rest }: LinkProps): ReactElement => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  )
-  ;(Link as unknown as { displayName: string }).displayName = 'Link'
-  return Link
+  return {
+    __esModule: true,
+    default: ({
+      children,
+      href,
+      scroll,
+    }: {
+      children: React.ReactNode
+      href: string
+      scroll?: boolean
+    }) => (
+      <a href={href} data-test-scroll={String(scroll)}>
+        {children}
+      </a>
+    ),
+  }
 })
 
 import AboutPage from '@/app/about/page'

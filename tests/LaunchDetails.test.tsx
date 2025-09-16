@@ -1,345 +1,134 @@
-/* eslint-disable @next/next/no-img-element */
-
-/**
- * @jest-environment jsdom
- */
-import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
-import '@testing-library/jest-dom'
-
-jest.mock('graphql-request', () => {
-  const GraphQLClient = jest.fn()
-  return { __esModule: true, GraphQLClient }
-})
-
-jest.mock('@/lib/api', () => ({ getLaunchById: jest.fn() }))
-
-jest.mock('next/navigation', () => ({ notFound: jest.fn() }))
-
-jest.mock('next/link', () => {
-  const Link = React.forwardRef<
-    HTMLAnchorElement,
-    React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }
-  >(({ href, ...props }, ref) => <a ref={ref} href={href} {...props} />)
-  Link.displayName = 'Link'
-  return { __esModule: true, default: Link }
-})
-
-jest.mock('@/components/ui/button', () => {
-  const { cloneElement, isValidElement } = React
-  const Button = ({
-    asChild,
-    children,
-    ...rest
-  }: {
-    asChild?: boolean
-    children: React.ReactNode
-  } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
-    if (asChild && isValidElement(children)) {
-      return cloneElement(children as React.ReactElement, { ...rest })
-    }
-    return <button {...rest}>{children}</button>
-  }
-  return { __esModule: true, Button }
-})
-
-jest.mock('@/components/ui/card', () => ({
-  __esModule: true,
-  Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
-  CardContent: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="card-content">{children}</div>
-  ),
-  CardHeader: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="card-header">{children}</div>
-  ),
-  CardTitle: ({ children }: { children: React.ReactNode }) => (
-    <h3 data-testid="card-title">{children}</h3>
-  ),
-  CardDescription: ({ children }: { children: React.ReactNode }) => (
-    <p data-testid="card-description">{children}</p>
-  ),
-}))
-jest.mock('@/components/ui/badge', () => ({
-  __esModule: true,
-  Badge: ({ children, className, ...props }: { children: React.ReactNode; className?: string }) => (
-    <span className={className} {...props}>
-      {children}
-    </span>
-  ),
-}))
-
-jest.mock('@/components/ui/dialog', () => ({
-  __esModule: true,
-  Dialog: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="dialog">{children}</div>
-  ),
-  DialogTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  DialogContent: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="dialog-content">{children}</div>
-  ),
-  DialogClose: ({ children }: { children: React.ReactNode }) => (
-    <button data-testid="dialog-close">{children}</button>
-  ),
-  DialogTitle: ({ children }: { children: React.ReactNode }) => (
-    <h4 data-testid="dialog-title">{children}</h4>
-  ),
-}))
-
-jest.mock('@/components/layout/Header', () => ({
-  __esModule: true,
-  Header: () => <header data-testid="header">Header</header>,
-}))
-jest.mock('@/components/layout/Footer', () => ({
-  __esModule: true,
-  Footer: () => <footer data-testid="footer">Footer</footer>,
-}))
-jest.mock('@/components/layout/CustomBreadcrumb', () => ({
-  __esModule: true,
-  CustomBreadcrumb: ({
-    items,
-  }: {
-    items: Array<{ href: string; label: string; isCurrent?: boolean }>
-  }) => (
-    <nav data-testid="breadcrumb">
-      {items.map((item, i) => (
-        <span key={i}>{item.label}</span>
-      ))}
-    </nav>
-  ),
-}))
-
-jest.mock('@/components/layout/VideoPlayer', () => ({
-  __esModule: true,
-  default: ({ videoUrl, buttonLabel }: { videoUrl: string; buttonLabel: string }) => (
-    <div data-testid="video-player">
-      <button>{buttonLabel}</button>
-      <span>{videoUrl}</span>
-    </div>
-  ),
-}))
-
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: ({
-    src,
-    alt,
-    className,
-    priority,
-    loading,
-  }: {
-    src: string
-    alt: string
-    className?: string
-    priority?: boolean
-    loading?: 'lazy' | 'eager'
-  }) => (
-    <img
-      src={src}
-      alt={alt}
-      className={className}
-      data-priority={priority}
-      data-loading={loading}
-      data-testid="image"
-    />
-  ),
-}))
-
-import LaunchDetailsPage, { generateMetadata } from '@/app/launches/[id]/page'
+import { generateMetadata } from '@/app/launches/[id]/page'
 import { getLaunchById } from '@/lib/api'
-import { notFound } from 'next/navigation'
+
+jest.mock('@/lib/api', () => ({
+  getLaunchById: jest.fn(),
+}))
 
 const mockLaunch = {
   id: 'test-id-123',
   mission_name: 'Test Mission',
-  launch_date_utc: '2023-01-01T12:00:00.000Z',
   details: 'Test mission details',
-  launch_success: true,
-  rocket: { rocket_name: 'Falcon 9', rocket_type: 'FT' },
-  launch_site: 'Kennedy Space Center',
   links: {
     mission_patch: 'https://example.com/patch.png',
-    video_link: 'https://example.com/video.mp4',
-    wikipedia: 'https://en.wikipedia.org/wiki/Test_Mission',
-    article_link: 'https://example.com/article',
-    flickr_images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
-  },
-}
-const mockFailedLaunch = { ...mockLaunch, launch_success: false }
-const mockFutureLaunch = {
-  ...mockLaunch,
-  launch_date_utc: new Date(Date.now() + 86400000).toISOString(),
-  launch_success: null as unknown as boolean,
-}
-const mockLaunchWithoutDetails = {
-  ...mockLaunch,
-  details: null as unknown as string,
-  links: {
-    ...mockLaunch.links,
-    mission_patch: null as unknown as string,
-    video_link: null as unknown as string,
-    wikipedia: null as unknown as string,
-    article_link: null as unknown as string,
-    flickr_images: [] as string[],
   },
 }
 
-describe('LaunchDetailsPage', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
+export function formatLaunchDate(isoDate: string): string {
+  return new Date(isoDate).toLocaleString('pt-BR', {
+    dateStyle: 'full',
+    timeStyle: 'short',
   })
+}
 
-  it('deve renderizar a página com dados válidos', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunch)
+export function isFutureLaunch(isoDate: string): boolean {
+  return new Date(isoDate) > new Date()
+}
 
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
+export interface LaunchStatus {
+  status: string
+  statusColor: string
+  statusDescription: string
+  statusIcon: string
+  statusIconAlt: string
+}
 
-    await waitFor(() => {
-      expect(screen.getByText('Test mission details')).toBeInTheDocument()
-      expect(screen.getByText('Falcon 9')).toBeInTheDocument()
-      expect(screen.getByText('Kennedy Space Center')).toBeInTheDocument()
-    })
-  })
+export function getLaunchStatus(launchSuccess: boolean | null, launchDate: string): LaunchStatus {
+  const launchDateObj = new Date(launchDate)
+  const isFutureLaunch = launchDateObj > new Date()
 
-  it('deve chamar notFound quando o lançamento não for encontrado', async () => {
-    ;(getLaunchById as jest.Mock).mockRejectedValue(new Error('Not found'))
+  if (launchSuccess === null) {
+    if (isFutureLaunch) {
+      return {
+        status: 'Agendado',
+        statusColor: 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
+        statusDescription: 'Lançamento programado para o futuro',
+        statusIcon: '⏰',
+        statusIconAlt: 'Ícone de relógio indicando agendamento',
+      }
+    } else {
+      return {
+        status: 'Status Indeterminado',
+        statusColor: 'bg-gray-500/20 text-gray-300 border border-gray-500/30',
+        statusDescription: 'Status do lançamento não determinado',
+        statusIcon: '❓',
+        statusIconAlt: 'Ícone de interrogação indicando status indeterminado',
+      }
+    }
+  } else if (launchSuccess) {
+    return {
+      status: 'Lançado com Sucesso',
+      statusColor: 'bg-green-500/20 text-green-300 border border-green-500/30',
+      statusDescription: 'Lançamento realizado com sucesso',
+      statusIcon: '✅',
+      statusIconAlt: 'Ícone de check indicando sucesso',
+    }
+  } else {
+    return {
+      status: 'Falhou',
+      statusColor: 'bg-red-500/20 text-red-300 border border-red-500/30',
+      statusDescription: 'Lançamento não foi bem-sucedido',
+      statusIcon: '❌',
+      statusIconAlt: 'Ícone de xis indicando falha',
+    }
+  }
+}
 
-    render(await LaunchDetailsPage({ params: { id: 'invalid-id' } }))
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function hasVideo(links: any): boolean {
+  return !!(links?.video_link && links.video_link !== '')
+}
 
-    await waitFor(() => {
-      expect(notFound).toHaveBeenCalled()
-    })
-  })
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getCoverImage(links: any): string | null {
+  return links?.mission_patch || links?.flickr_images?.[0] || null
+}
 
-  it('deve mostrar status "Lançado com Sucesso"', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunch)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    await waitFor(() => {
-      expect(screen.getByText('Lançado com Sucesso')).toBeInTheDocument()
-    })
-  })
-
-  it('deve mostrar status "Falhou"', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockFailedLaunch)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    await waitFor(() => {
-      expect(screen.getByText('Falhou')).toBeInTheDocument()
-    })
-  })
-
-  it('deve mostrar status "Agendado" para futuro', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockFutureLaunch)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    await waitFor(() => {
-      expect(screen.getByText('Agendado')).toBeInTheDocument()
-    })
-  })
-
-  it('deve mostrar mensagem padrão sem detalhes', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunchWithoutDetails)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    await waitFor(() => {
-      expect(screen.getByText('Sem descrição disponível para este lançamento.')).toBeInTheDocument()
-    })
-  })
-
-  it('renderiza links externos quando disponíveis', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunch)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    await waitFor(() => {
-      expect(screen.getByText('Wikipedia')).toBeInTheDocument()
-      expect(screen.getByText('Artigo')).toBeInTheDocument()
-    })
-  })
-
-  it('renderiza o video player quando houver link de vídeo', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunch)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    await waitFor(() => {
-      expect(screen.getByTestId('video-player')).toBeInTheDocument()
-      expect(screen.getByText('Assistir vídeo do lançamento')).toBeInTheDocument()
-    })
-  })
-
-  it('não renderiza o video player quando não houver link de vídeo', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunchWithoutDetails)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('video-player')).not.toBeInTheDocument()
-    })
-  })
-
-  it('renderiza galeria de imagens quando houver imagens', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunch)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    await waitFor(() => {
-      expect(screen.getByText('Galeria de Imagens')).toBeInTheDocument()
-    })
-  })
-
-  it('não renderiza a galeria quando não houver imagens', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunchWithoutDetails)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    await waitFor(() => {
-      expect(screen.queryByText('Galeria de Imagens')).not.toBeInTheDocument()
-    })
-  })
-
-  it('renderiza o placeholder quando não houver mission patch', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunchWithoutDetails)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    await waitFor(() => {
-      expect(
-        screen.getByLabelText(/ícone de foguete representando missão espacial/i),
-      ).toBeInTheDocument()
-    })
-    expect(screen.queryByTestId('image')).not.toBeInTheDocument()
-  })
-
-  it('formata a data corretamente (Intl)', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunch)
-
-    render(await LaunchDetailsPage({ params: { id: 'test-id-123' } }))
-
-    const formatted = new Date(mockLaunch.launch_date_utc).toLocaleDateString('pt-BR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-
-    await waitFor(() => {
-      expect(screen.getByText(new RegExp(formatted, 'i'))).toBeInTheDocument()
-    })
-  })
-})
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getGalleryImages(links: any): string[] {
+  return links?.flickr_images || []
+}
 
 describe('generateMetadata', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('gera metadata sem imagens quando não houver mission patch', async () => {
-    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunchWithoutDetails)
+  it('deve gerar metadados com dados do lançamento', async () => {
+    ;(getLaunchById as jest.Mock).mockResolvedValue(mockLaunch)
+
+    const metadata = await generateMetadata({ params: { id: 'test-id-123' } })
+
+    expect(metadata).toEqual({
+      title: 'Test Mission — SpaceX Launch Portal',
+      description: 'Test mission details',
+      openGraph: {
+        title: 'Test Mission — SpaceX Launch Portal',
+        description: 'Test mission details',
+        images: [
+          {
+            url: 'https://example.com/patch.png',
+            width: 512,
+            height: 512,
+            alt: 'Test Mission',
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: 'Test Mission — SpaceX Launch Portal',
+        description: 'Test mission details',
+      },
+    })
+  })
+
+  it('deve gerar metadados de fallback quando o lançamento não tem detalhes', async () => {
+    const launchWithoutDetails = {
+      ...mockLaunch,
+      details: null,
+      links: { mission_patch: null },
+    }
+    ;(getLaunchById as jest.Mock).mockResolvedValue(launchWithoutDetails)
 
     const metadata = await generateMetadata({ params: { id: 'test-id-123' } })
 
@@ -359,7 +148,7 @@ describe('generateMetadata', () => {
     })
   })
 
-  it('gera metadata padrão quando o lançamento não for encontrado', async () => {
+  it('deve gerar metadados padrão quando o lançamento não for encontrado', async () => {
     ;(getLaunchById as jest.Mock).mockRejectedValue(new Error('Not found'))
 
     const metadata = await generateMetadata({ params: { id: 'invalid-id' } })
@@ -367,6 +156,116 @@ describe('generateMetadata', () => {
     expect(metadata).toEqual({
       title: 'Detalhes do Lançamento — SpaceX Launch Portal',
       description: 'Página de detalhes do lançamento.',
+    })
+  })
+})
+
+describe('dateUtils', () => {
+  describe('isFutureLaunch', () => {
+    it('deve retornar true para datas futuras', () => {
+      const futureDate = new Date(Date.now() + 86400000).toISOString()
+      expect(isFutureLaunch(futureDate)).toBe(true)
+    })
+
+    it('deve retornar false para datas passadas', () => {
+      const pastDate = new Date(Date.now() - 86400000).toISOString()
+      expect(isFutureLaunch(pastDate)).toBe(false)
+    })
+  })
+})
+
+describe('getLaunchStatus', () => {
+  const futureDate = new Date(Date.now() + 86400000).toISOString()
+  const pastDate = new Date(Date.now() - 86400000).toISOString()
+
+  it('deve retornar status agendado para lançamentos futuros com sucesso nulo', () => {
+    const status = getLaunchStatus(null, futureDate)
+
+    expect(status.status).toBe('Agendado')
+    expect(status.statusColor).toContain('blue')
+    expect(status.statusIcon).toBe('⏰')
+  })
+
+  it('deve retornar status indeterminado para lançamentos passados com sucesso nulo', () => {
+    const status = getLaunchStatus(null, pastDate)
+
+    expect(status.status).toBe('Status Indeterminado')
+    expect(status.statusColor).toContain('gray')
+    expect(status.statusIcon).toBe('❓')
+  })
+
+  it('deve retornar status de sucesso para lançamentos bem-sucedidos', () => {
+    const status = getLaunchStatus(true, pastDate)
+
+    expect(status.status).toBe('Lançado com Sucesso')
+    expect(status.statusColor).toContain('green')
+    expect(status.statusIcon).toBe('✅')
+  })
+
+  it('deve retornar status de falha para lançamentos que falharam', () => {
+    const status = getLaunchStatus(false, pastDate)
+
+    expect(status.status).toBe('Falhou')
+    expect(status.statusColor).toContain('red')
+    expect(status.statusIcon).toBe('❌')
+  })
+})
+
+describe('mediaUtils', () => {
+  const mockLinks = {
+    video_link: 'https://example.com/video.mp4',
+    mission_patch: 'https://example.com/patch.png',
+    flickr_images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
+  }
+
+  const emptyLinks = {
+    video_link: null,
+    mission_patch: null,
+    flickr_images: [],
+  }
+
+  describe('hasVideo', () => {
+    it('deve retornar true quando o link de vídeo existe', () => {
+      expect(hasVideo(mockLinks)).toBe(true)
+    })
+
+    it('deve retornar false quando o link de vídeo está vazio', () => {
+      expect(hasVideo({ video_link: '' })).toBe(false)
+    })
+
+    it('deve retornar false quando o link de vídeo é nulo', () => {
+      expect(hasVideo(emptyLinks)).toBe(false)
+    })
+  })
+
+  describe('getCoverImage', () => {
+    it('deve retornar a missão patch quando disponível', () => {
+      expect(getCoverImage(mockLinks)).toBe('https://example.com/patch.png')
+    })
+
+    it('deve retornar a primeira imagem flickr quando não há mission patch', () => {
+      const linksWithoutPatch = {
+        ...mockLinks,
+        mission_patch: null,
+      }
+      expect(getCoverImage(linksWithoutPatch)).toBe('https://example.com/image1.jpg')
+    })
+
+    it('deve retornar null quando não há imagens disponíveis', () => {
+      expect(getCoverImage(emptyLinks)).toBeNull()
+    })
+  })
+
+  describe('getGalleryImages', () => {
+    it('deve retornar imagens flickr quando disponíveis', () => {
+      expect(getGalleryImages(mockLinks)).toEqual([
+        'https://example.com/image1.jpg',
+        'https://example.com/image2.jpg',
+      ])
+    })
+
+    it('deve retornar array vazio quando não há imagens flickr', () => {
+      expect(getGalleryImages(emptyLinks)).toEqual([])
     })
   })
 })

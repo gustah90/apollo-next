@@ -9,25 +9,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { Launch } from '@/app/types/launch'
 
-// interface Launch {
-//   id: string
-//   mission_name: string
-//   launch_date_utc: string
-//   launch_success: boolean | null
-//   details: string | null
-//   links: {
-//     mission_patch_small: string | null
-//     mission_patch: string | null
-//     flickr_images: string[]
-//     video_link: string | null
-//   }
-//   rocket: {
-//     rocket_name: string
-//     rocket_type: string
-//   }
-//   launch_site?: string | { site_name_long: string }
-// }
-
 interface LaunchCardProps {
   readonly launch: Launch
 }
@@ -93,6 +74,7 @@ export default function LaunchCard({ launch }: LaunchCardProps) {
       >
         <Link
           href={`/launches/${launch.id}`}
+          scroll={false}
           className="block h-full no-underline text-inherit focus:outline-none group"
           aria-label={`Ver detalhes da missão ${launch.mission_name}`}
         >

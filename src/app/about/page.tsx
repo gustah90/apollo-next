@@ -17,6 +17,7 @@ import {
   Accessibility,
   ArrowLeft,
 } from 'lucide-react'
+import { CustomBreadcrumb } from '@/components/layout/CustomBreadcrumb'
 
 export const metadata: Metadata = {
   title: 'Sobre o Projeto - SpaceX Launch Portal',
@@ -35,6 +36,13 @@ export default function AboutPage() {
         role="main"
         tabIndex={-1}
       >
+        <CustomBreadcrumb
+          items={[
+            { href: '/', label: 'Início' },
+            { href: '#', label: 'Sobre' },
+          ]}
+          className="mx-auto max-w-4xl px-4 space-y-8"
+        />
         <div className="mx-auto max-w-4xl px-4">
           <Card className="border-slate-700/50 bg-slate-800/50 ring-1 ring-white/10 backdrop-blur text-slate-300 pt-4">
             <CardHeader className="text-center pb-8">
@@ -301,7 +309,7 @@ export default function AboutPage() {
 
               <div className="pt-8 border-t border-slate-700 text-center">
                 <Button asChild size="lg" className="px-8 py-4 text-base">
-                  <Link href="/" aria-label="Ir à página inicial">
+                  <Link href="/" scroll={false} aria-label="Ir à página inicial">
                     <ArrowLeft className="h-4 w-4" />
                     Ir ao Início
                   </Link>
