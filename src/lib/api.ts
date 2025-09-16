@@ -2,27 +2,6 @@ import { Launch } from '@/app/types/launch'
 import { getSSRClient, getCSRClient } from './graphql-client'
 import { GET_LAUNCHES, GET_LAUNCHES_SIMPLE, GET_LAUNCH_DETAILS } from './queries'
 
-// export interface Launch {
-//   id: string
-//   mission_name: string
-//   launch_date_utc: string
-//   launch_success: boolean | null
-//   launch_site: string
-//   details: string | null
-//   links: {
-//     mission_patch: string | null
-//     mission_patch_small: string | null
-//     article_link: string | null
-//     video_link: string | null
-//     wikipedia: string | null
-//     flickr_images: string[]
-//   }
-//   rocket: {
-//     rocket_name: string
-//     rocket_type: string
-//   }
-// }
-
 const getUniversalClient = () => (typeof window === 'undefined' ? getSSRClient() : getCSRClient())
 
 export async function getLaunchesCSR(limit?: number, offset?: number): Promise<Launch[]> {

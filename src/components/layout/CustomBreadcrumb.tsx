@@ -52,6 +52,7 @@ export function CustomBreadcrumb({
                     <BreadcrumbLink asChild>
                       <Link
                         href={item.href}
+                        scroll={false}
                         className="hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded transition-colors"
                       >
                         {item.label}
@@ -70,7 +71,6 @@ export function CustomBreadcrumb({
   )
 }
 
-// Versão específica para páginas de lançamento
 interface LaunchBreadcrumbProps {
   readonly missionName: string
   readonly className?: string

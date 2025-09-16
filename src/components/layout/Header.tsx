@@ -33,6 +33,7 @@ export function Header() {
             href="/"
             aria-current={isMounted && pathname === '/' ? 'page' : undefined}
             className="flex items-center gap-3"
+            scroll={false}
           >
             <div className="w-10 h-10 bg-blue-700 rounded-lg grid place-items-center" aria-hidden>
               <span className="text-white font-bold text-lg">🚀</span>
@@ -53,6 +54,7 @@ export function Header() {
                         'text-slate-300 hover:text-white transition-colors font-medium',
                         active && 'text-white',
                       )}
+                      scroll={false}
                     >
                       {label}
                     </Link>
@@ -119,6 +121,7 @@ function MobileNav({ pathname }: Readonly<{ pathname: string }>) {
                       active && 'bg-slate-800 text-white',
                     )}
                     onClick={() => setOpen(false)}
+                    scroll={false}
                   >
                     {label}
                   </Link>

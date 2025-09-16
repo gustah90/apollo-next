@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { CustomBreadcrumb } from '@/components/layout/CustomBreadcrumb'
 
 export const metadata: Metadata = {
   title: 'Política de Privacidade - SpaceX Launch Portal',
@@ -22,6 +23,13 @@ export default function PrivacyPage() {
         role="main"
         tabIndex={-1}
       >
+        <CustomBreadcrumb
+          items={[
+            { href: '/', label: 'Início' },
+            { href: '#', label: 'Política de Privacidade' },
+          ]}
+          className="mx-auto max-w-4xl px-4 space-y-8"
+        />
         <div className="mx-auto max-w-4xl px-4">
           <article className="bg-slate-800/50 rounded-2xl p-8 ring-1 ring-white/10 backdrop-blur">
             <header className="text-center mb-8">

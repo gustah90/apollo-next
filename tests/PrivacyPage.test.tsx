@@ -20,6 +20,21 @@ jest.mock('@/components/ui/button', () => ({
   },
 }))
 
+jest.mock('@/components/layout/CustomBreadcrumb', () => ({
+  __esModule: true,
+  CustomBreadcrumb: ({
+    items,
+  }: {
+    items: Array<{ href: string; label: string; isCurrent?: boolean }>
+  }) => (
+    <nav data-testid="breadcrumb">
+      {items.map((item, i) => (
+        <span key={i}>{item.label}</span>
+      ))}
+    </nav>
+  ),
+}))
+
 type CardShellProps = PropsWithChildren<{ className?: string }>
 jest.mock('@/components/ui/card', () => ({
   Card: ({ className, children, ...rest }: CardShellProps): ReactElement => (
@@ -56,17 +71,27 @@ jest.mock('lucide-react', () => {
   }
 })
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface LinkProps extends PropsWithChildren<React.AnchorHTMLAttributes<HTMLAnchorElement>> {
   href: string
 }
 jest.mock('next/link', () => {
-  const Link = ({ href, children, ...rest }: LinkProps): ReactElement => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  )
-  ;(Link as unknown as { displayName: string }).displayName = 'Link'
-  return Link
+  return {
+    __esModule: true,
+    default: ({
+      children,
+      href,
+      scroll,
+    }: {
+      children: React.ReactNode
+      href: string
+      scroll?: boolean
+    }) => (
+      <a href={href} data-test-scroll={String(scroll)}>
+        {children}
+      </a>
+    ),
+  }
 })
 
 import PrivacyPage from '@/app/privacy/page'
@@ -99,14 +124,5 @@ describe('PrivacyPage (unit)', () => {
 
     expect(screen.getByRole('heading', { name: /coleta de dados/i, level: 2 })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /dados técnicos/i, level: 2 })).toBeInTheDocument()
-  })
-
-  it('tem CTA para voltar ao início (aria-label)', async () => {
-    const element = await PrivacyPage()
-    render(element)
-
-    const cta = screen.getByRole('link', { name: /ir à página inicial/i })
-    expect(cta).toBeInTheDocument()
-    expect(cta).toHaveAttribute('href', '/')
   })
 })

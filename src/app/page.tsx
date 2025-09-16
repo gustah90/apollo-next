@@ -62,24 +62,24 @@ export default async function HomePage() {
             </h2>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" role="list">
-              <Link
-                href="/launches"
-                className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-300 rounded-xl"
-                aria-label="Ir para o catálogo de lançamentos"
+              <Card
+                role="listitem"
+                tabIndex={0}
+                aria-label={`Total de lançamentos: ${formattedTotal}`}
+                className={`rounded-xl bg-slate-800/70 p-6 ring-1 ring-white/10 backdrop-blur transition-transform ${
+                  shouldHoverScale(statsData.total) ? 'hover:scale-102 cursor-pointer' : ''
+                }`}
               >
-                <Card
-                  role="listitem"
-                  tabIndex={0}
-                  aria-label={`Total de lançamentos: ${formattedTotal}`}
-                  className={`rounded-xl bg-slate-800/70 p-6 ring-1 ring-white/10 backdrop-blur transition-transform ${
-                    shouldHoverScale(statsData.total) ? 'hover:scale-102 cursor-pointer' : ''
-                  }`}
+                <Link
+                  href="/launches"
+                  className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-300 rounded-xl"
+                  aria-label="Ir para o catálogo de lançamentos"
                 >
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md text-slate-300">Total de lançamentos</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center">
+                    <div className="flex items-center mt-8">
                       <div className="flex-shrink-0" aria-hidden="true">
                         <div className="w-8 h-8 bg-blue-700 rounded-lg flex items-center justify-center">
                           <span className="text-white text-sm font-bold">🚀</span>
@@ -95,8 +95,8 @@ export default async function HomePage() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              </Link>
+                </Link>
+              </Card>
               <Card
                 className={`rounded-xl bg-slate-800/70 p-6 ring-1 ring-white/10 backdrop-blur transition-transform ${
                   shouldHoverScale(successfulLaunches) ? 'hover:scale-102 cursor-pointer' : ''
@@ -109,7 +109,7 @@ export default async function HomePage() {
                   <CardTitle className="text-md text-slate-300">Bem-sucedidos</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center">
+                  <div className="flex items-center mt-2">
                     <div className="flex-shrink-0" aria-hidden="true">
                       <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
                         <span className="text-white text-sm font-bold">✓</span>
@@ -124,24 +124,24 @@ export default async function HomePage() {
                 </CardContent>
               </Card>
 
-              <Link
-                href={{ pathname: '/launches', query: { video: '1' } }}
-                className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-300 rounded-xl"
-                aria-label="Ver lançamentos que possuem vídeo"
+              <Card
+                role="listitem"
+                className={`rounded-xl bg-slate-800/70 p-6 ring-1 ring-white/10 backdrop-blur transition-transform ${
+                  shouldHoverScale(hasVideoLaunches) ? 'hover:scale-102 cursor-pointer' : ''
+                }`}
+                tabIndex={0}
+                aria-label={`Lançamentos com vídeo: ${formattedVideoLaunches}`}
               >
-                <Card
-                  role="listitem"
-                  className={`rounded-xl bg-slate-800/70 p-6 ring-1 ring-white/10 backdrop-blur transition-transform ${
-                    shouldHoverScale(hasVideoLaunches) ? 'hover:scale-102 cursor-pointer' : ''
-                  }`}
-                  tabIndex={0}
-                  aria-label={`Lançamentos com vídeo: ${formattedVideoLaunches}`}
+                <Link
+                  href={{ pathname: '/launches', query: { video: '1' } }}
+                  className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-300 rounded-xl"
+                  aria-label="Ver lançamentos que possuem vídeo"
                 >
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md text-slate-300">Lançamentos com Vídeo</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center">
+                    <div className="flex items-center mt-8">
                       <div className="flex-shrink-0" aria-hidden="true">
                         <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
                           <span className="text-white text-sm font-bold">▶️</span>
@@ -154,8 +154,8 @@ export default async function HomePage() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              </Link>
+                </Link>
+              </Card>
               <Card
                 className="rounded-xl bg-slate-800/70 p-6 ring-1 ring-white/10 backdrop-blur"
                 role="listitem"
@@ -176,7 +176,7 @@ export default async function HomePage() {
                     </dd>
                   </CardTitle>
                 </CardHeader>
-                <CardContent style={{ marginTop: '-1rem' }}>
+                <CardContent style={{ marginTop: '-.75rem' }}>
                   <RefreshButton className="text-sm font-semibold text-slate-100" />
                 </CardContent>
               </Card>
